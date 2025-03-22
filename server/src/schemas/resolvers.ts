@@ -1,4 +1,4 @@
-import { User, Book } from '../models';
+import User from '../models';
 import { AuthenticationError } from 'apollo-server-express';
 import { signToken } from '../services/auth';
 
@@ -19,13 +19,10 @@ interface IBookInput {
     link: string;
 }
 
-interface User {
-    
-}
 
 const resolvers = {
     Query: {
-        me: async (_parent: any, args, context: IUserContext) => {
+        me: async (_parent: any, _args: any, context: IUserContext): Promise<any> => {
             if (context.user) {
                 const userData = await User.findOne({ _id: context.user._id })
                     .select('-__v -password')
@@ -39,7 +36,7 @@ const resolvers = {
 
     },
     Mutation: {
-        login: async (_parent: any, { email, password }) => {
+        login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<any> => {
             const user = await User.findOne({ email });
 
             if (!user) {
@@ -56,15 +53,15 @@ const resolvers = {
 
             return { token, user };
         },
-        addUser: async (_parent: any, args) => {
+        addUser: async (_parent: any, args: any): Promise<any> => {
             const user = await User.create(args);
             const token = signToken(user);
 
             return { token, user };
         },
-        saveBook: async (_parent: any, { input }, context: IUserContext) => {
+        saveBook: async (_parent: any, { input }: {input: IBookInput}, context: IUserContext): Promise<any> => {
             if (context.user) {
-                const updatedUser = await User.findByIdAndUpdate(
+                const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $push: { savedBooks: input } },
                     { new: true }
@@ -75,7 +72,7 @@ const resolvers = {
 
             throw new AuthenticationError('You need to be logged in!');
         },
-        removeBook: async (_parent: any, { bookId }, context: IUserContext) => {
+        removeBook: async (_parent: any, { bookId }: { bookId: string }, context: IUserContext): Promise<any> => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
@@ -92,3 +89,5 @@ const resolvers = {
 
 
 };
+
+export default resolvers;
