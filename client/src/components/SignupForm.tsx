@@ -32,8 +32,11 @@ const SignupForm = ({ }: { handleModalClose: () => void }) => {
       event.stopPropagation();
     }
 
+    console.log('this is before the createuser function');
+
     try {
       const { data } = await createUser({ variables: { ...userFormData } });
+      console.log('this is after the createuser function');
 
       // Auth.login(data.addUser.token);
 
