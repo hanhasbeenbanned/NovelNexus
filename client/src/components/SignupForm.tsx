@@ -2,18 +2,20 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
-import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
 import type { User } from '../models/User';
+import { useMutation } from '@apollo/client';
+import { ADD_USER } from '../utils/mutations';
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
-const SignupForm = ({}: { handleModalClose: () => void }) => {
+const SignupForm = ({ }: { handleModalClose: () => void }) => {
   // set initial form state
   const [userFormData, setUserFormData] = useState<User>({ username: '', email: '', password: '', savedBooks: [] });
   // set state for form validation
   const [validated] = useState(false);
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
+  const [createUser] = useMutation(ADD_USER);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -31,14 +33,16 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
     }
 
     try {
-      const response = await createUser(userFormData);
+      const { data } = await createUser({ variables: { ...userFormData } });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
+      // Auth.login(data.addUser.token);
+
+      console.log('data = ', data);
+      if (data && data.addUser && data.addUser.token) {
+        Auth.login(data.addUser.token);
+      } else {
+        console.error("Token not found in response");
       }
-
-      const { token } = await response.json();
-      Auth.login(token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
