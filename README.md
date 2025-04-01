@@ -4,6 +4,9 @@
 
   ## Description 
 Search for books using the power of Google Books, complete with summaries and cover images to help you choose your next read. Create your own profile to save your favorite books and build a personalized library you can revisit anytime.
+
+<img src="client/public/images/NovelNexusPic.PNG" alt="NovelNexus Screenshot" width="500"/>
+
  ## Table of Contents 
 - [Installation](#installation) 
 - [Usage](#usage)
